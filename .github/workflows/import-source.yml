@@ -26,7 +26,7 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          test "$(find .github/import -maxdepth 1 -name 'source.part.*' -type f | wc -l)" -eq 6
+          test "$(find .github/import -maxdepth 1 -name 'source.part.*' -type f | wc -l)" -eq 13
           cat .github/import/source.part.* | base64 --decode > /tmp/source.tar.gz
           echo '8bf9788b6329aa82c09af3ec2d5dbc27b04d51b5a99822a764bdebd04d86ea6f  /tmp/source.tar.gz' | sha256sum --check --strict
           tar -tzf /tmp/source.tar.gz | grep -Ev '(^|/)\.\.?(/|$)|(^|/)\.git(/|$)' >/dev/null

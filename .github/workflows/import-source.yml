@@ -28,7 +28,7 @@ jobs:
           set -euo pipefail
           test "$(find .github/import -maxdepth 1 -name 'xz.part.*' -type f | wc -l)" -eq 10
           cat .github/import/xz.part.* | base64 --decode > /tmp/source.tar.xz
-          echo '84bb516d58fe2d6f19b4c7a14834c3c0700dfca494fafff66bbfb7337a20a482  /tmp/source.tar.xz' | sha256sum --check --strict
+          echo 'fd480665ae5fe4712cb414883ad74ca2d0fb304d95e71c3d6ba79bff82182a8d  /tmp/source.tar.xz' | sha256sum --check --strict
           tar -tJf /tmp/source.tar.xz | grep -Ev '(^|/)\.\.?(/|$)|(^|/)\.git(/|$)' >/dev/null
 
       - name: Import source tree
@@ -37,6 +37,7 @@ jobs:
           set -euo pipefail
           tar -xJf /tmp/source.tar.xz -C .
           rm -rf .github/import
+          rm -f .github/workflows/import-source.yml
 
       - name: Commit imported project
         shell: bash

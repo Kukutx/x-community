@@ -1,54 +1,27 @@
-name: Import source snapshot
+name: Verify source import channel
 
 on:
-  push:
-    branches: [master]
-    paths:
-      - '.github/import/READY'
+  issues:
+    types: [opened]
 
 permissions:
   contents: write
 
-concurrency:
-  group: import-source-snapshot
-  cancel-in-progress: false
-
 jobs:
-  import:
+  verify:
+    if: github.event.issue.title == 'VERIFY_X_COMMUNITY_IMPORT_CHANNEL_20260804'
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
         with:
           fetch-depth: 0
-
-      - name: Decode and verify source archive
+      - name: Record successful issue trigger
         shell: bash
         run: |
           set -euo pipefail
-          test "$(find .github/import -maxdepth 1 -name 'xz.part.*' -type f | wc -l)" -eq 10
-          cat .github/import/xz.part.* | base64 --decode > /tmp/source.tar.xz
-          echo '84bb516d58fe2d6f19b4c7a14834c3c0700dfca494fafff66bbfb7337a20a482  /tmp/source.tar.xz' | sha256sum --check --strict
-          tar -tJf /tmp/source.tar.xz | grep -Ev '(^|/)\.\.?(/|$)|(^|/)\.git(/|$)' >/dev/null
-
-      - name: Import source tree
-        shell: bash
-        run: |
-          set -euo pipefail
-          tar -xJf /tmp/source.tar.xz -C .
-          rm -rf .github/import
-          rm -f .github/workflows/import-source.yml
-
-      - name: Commit imported project
-        shell: bash
-        run: |
-          set -euo pipefail
+          printf 'issue_event_triggered=true\nno_deployment=true\n' > .github/import/ACTIONS_OK
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          git add -A
-          if git diff --cached --quiet; then
-            echo 'No source changes to commit.'
-            exit 0
-          fi
-          git commit -m 'feat: import x-community project source'
+          git add .github/import/ACTIONS_OK
+          git commit -m 'chore: verify source import channel'
           git push origin HEAD:master

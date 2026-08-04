@@ -26,16 +26,16 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          test "$(find .github/import -maxdepth 1 -name 'source40.part.*' -type f | wc -l)" -eq 7
-          cat .github/import/source40.part.* | base64 --decode > /tmp/source.tar.gz
-          echo '8bf9788b6329aa82c09af3ec2d5dbc27b04d51b5a99822a764bdebd04d86ea6f  /tmp/source.tar.gz' | sha256sum --check --strict
-          tar -tzf /tmp/source.tar.gz | grep -Ev '(^|/)\.\.?(/|$)|(^|/)\.git(/|$)' >/dev/null
+          test "$(find .github/import -maxdepth 1 -name 'xz.part.*' -type f | wc -l)" -eq 10
+          cat .github/import/xz.part.* | base64 --decode > /tmp/source.tar.xz
+          echo '84bb516d58fe2d6f19b4c7a14834c3c0700dfca494fafff66bbfb7337a20a482  /tmp/source.tar.xz' | sha256sum --check --strict
+          tar -tJf /tmp/source.tar.xz | grep -Ev '(^|/)\.\.?(/|$)|(^|/)\.git(/|$)' >/dev/null
 
       - name: Import source tree
         shell: bash
         run: |
           set -euo pipefail
-          tar -xzf /tmp/source.tar.gz -C .
+          tar -xJf /tmp/source.tar.xz -C .
           rm -rf .github/import
 
       - name: Commit imported project
